@@ -11,6 +11,9 @@ import {
 import { createClient } from "@/lib/supabase/client"
 import { useProfile } from "@/hooks/use-profile"
 
+/**
+ * Colores asociados a cada etapa de la iniciativa.
+ */
 const etapaColor: Record<string, string> = {
     "Identificación de oportunidad": "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800",
     "Diseño Integral": "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800",
@@ -18,6 +21,9 @@ const etapaColor: Record<string, string> = {
     "Escalamiento y mejora continua": "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800",
 }
 
+/**
+ * Configuración de iconos y descripciones por etapa.
+ */
 const stageConfig: Record<EtapaType, { icon: React.ElementType, color: string, desc: string }> = {
     "Identificación de oportunidad": { icon: Lightbulb, color: "text-blue-500", desc: "Definición del problema" },
     "Diseño Integral": { icon: PenTool, color: "text-amber-500", desc: "Diseño de solución" },
@@ -33,6 +39,10 @@ type EditRegistro = {
 
 type MemberWithProfile = InitiativeMember & { profiles: Profile }
 
+/**
+ * Componente Cliente para visualizar y gestionar el detalle de una iniciativa.
+ * Incluye la bitácora de registros, gestión de miembros y edición de la iniciativa.
+ */
 export default function DetalleBitacoraClient({
     iniciativa: initialIniciativa,
     registros: initialRegistros,
@@ -253,7 +263,7 @@ export default function DetalleBitacoraClient({
     const CurrentStageIcon = stageConfig[currentStage]?.icon || Lightbulb
 
     return (
-        <div className="space-y-8 animate-in fade-in zoom-in-95 duration-700 pb-20 relative">
+        <div className="space-y-8 animate-in fade-in zoom-in-95 duration-700 pb-8 min-h-[calc(100vh-140px)] relative">
 
             {/* Custom Modal Overlay */}
             {showFinalizeConfirm && (
