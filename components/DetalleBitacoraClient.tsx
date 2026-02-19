@@ -6,7 +6,7 @@ import Link from "next/link"
 import {
     ArrowLeft, Edit3, Check, X, Plus, Trash2, Paperclip,
     Calendar, User, ListFilter, LayoutGrid, ChevronRight,
-    Loader2, Users, UserPlus, Send, FileText, MoreVertical, CheckCircle, Flag, ChevronDown, Lightbulb, PenTool, Rocket, TrendingUp
+    Loader2, Users, UserPlus, Send, FileText, MoreVertical, CheckCircle, Flag, ChevronDown, Lightbulb, PenTool, Rocket, TrendingUp, AlertTriangle
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useProfile } from "@/hooks/use-profile"
@@ -53,6 +53,9 @@ export default function DetalleBitacoraClient({
         etapa: (iniciativa.etapa ?? "Identificación de oportunidad") as EtapaType
     })
     const [iSaving, setISaving] = useState(false)
+
+    // Custom Confirmation Modal State
+    const [showFinalizeConfirm, setShowFinalizeConfirm] = useState(false)
 
     // Open/Close state for custom select
     const [openSelect, setOpenSelect] = useState(false)
@@ -157,9 +160,8 @@ export default function DetalleBitacoraClient({
         setEditingIniciativa(false)
     }
 
-    const finalizeIniciativa = async () => {
+    const confirmFinalize = async () => {
         if (!isAdmin) return
-        if (!confirm("¿Marcar esta iniciativa como finalizada/escalada?")) return
 
         setISaving(true)
         const { data, error } = await supabase
@@ -174,6 +176,7 @@ export default function DetalleBitacoraClient({
             setIForm(prev => ({ ...prev, etapa: "Escalamiento y mejora continua" }))
         }
         setISaving(false)
+        setShowFinalizeConfirm(false)
     }
 
     const handleUpload = async (file: File, target: "new" | "edit") => {
@@ -250,7 +253,42 @@ export default function DetalleBitacoraClient({
     const CurrentStageIcon = stageConfig[currentStage]?.icon || Lightbulb
 
     return (
-        <div className="space-y-8 animate-in fade-in zoom-in-95 duration-700 pb-20">
+        <div className="space-y-8 animate-in fade-in zoom-in-95 duration-700 pb-20 relative">
+
+            {/* Custom Modal Overlay */}
+            {showFinalizeConfirm && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
+                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-sm shadow-2xl shadow-black/50 overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+                        <div className="p-6 text-center space-y-4">
+                            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-2 animate-in zoom-in duration-500 delay-100">
+                                <Flag className="w-8 h-8" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">¿Finalizar Iniciativa?</h3>
+                                <p className="text-sm text-slate-500 dark:text-slate-400">
+                                    Esta acción marcará la iniciativa como <span className="text-emerald-600 dark:text-emerald-400 font-bold">completada</span>.
+                                </p>
+                            </div>
+
+                            <div className="flex gap-3 pt-2">
+                                <button
+                                    onClick={() => setShowFinalizeConfirm(false)}
+                                    className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium text-sm transition"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={confirmFinalize}
+                                    disabled={iSaving}
+                                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-sm shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 hover:scale-[1.02] active:scale-[0.98] transition flex items-center justify-center gap-2"
+                                >
+                                    {iSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Finalizar"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* 1. Navbar / Breadcrumbs */}
             <nav className="flex items-center justify-between">
@@ -339,7 +377,7 @@ export default function DetalleBitacoraClient({
                                     <>
                                         {!isFinalized && (
                                             <button
-                                                onClick={finalizeIniciativa}
+                                                onClick={() => setShowFinalizeConfirm(true)}
                                                 title="Finalizar Iniciativa"
                                                 className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-xl transition hover:scale-105 active:scale-95 border border-transparent hover:border-emerald-200 dark:hover:border-emerald-800"
                                             >
