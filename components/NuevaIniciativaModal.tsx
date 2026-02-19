@@ -5,6 +5,10 @@ import { createClient } from "@/lib/supabase/client"
 import { Iniciativa, ETAPAS, EtapaType } from "@/lib/types/database.types"
 import { X, Loader2, BookPlus, ChevronDown, Check, Lightbulb, PenTool, Rocket, TrendingUp } from "lucide-react"
 
+/**
+ * Configuración de las etapas disponibles para una nueva iniciativa.
+ * Asocia cada etapa con un icono, un color y una breve descripción.
+ */
 const stageConfig: Record<EtapaType, { icon: React.ElementType, color: string, desc: string }> = {
     "Identificación de oportunidad": { icon: Lightbulb, color: "text-blue-500", desc: "Definición del problema y oportunidad" },
     "Diseño Integral": { icon: PenTool, color: "text-amber-500", desc: "Planificación y diseño de solución" },
@@ -12,6 +16,13 @@ const stageConfig: Record<EtapaType, { icon: React.ElementType, color: string, d
     "Escalamiento y mejora continua": { icon: TrendingUp, color: "text-emerald-500", desc: "Expansión y optimización" }
 }
 
+/**
+ * Modal para crear una nueva iniciativa.
+ * Permite ingresar código, nombre y etapa inicial.
+ * 
+ * @param onClose - Función para cerrar el modal.
+ * @param onCreated - Callback que se ejecuta cuando la iniciativa se crea exitosamente.
+ */
 export default function NuevaIniciativaModal({
     onClose,
     onCreated,
@@ -19,19 +30,23 @@ export default function NuevaIniciativaModal({
     onClose: () => void
     onCreated: (ini: Iniciativa) => void
 }) {
+    // -- Estado del Formulario --
     const [codigo, setCodigo] = useState("")
     const [nombre, setNombre] = useState("")
     const [etapa, setEtapa] = useState<EtapaType>("Identificación de oportunidad")
 
-    // Custom Select State
+    // -- Estado del Select Personalizado --
+    /** Controla si el menú desplegable de etapas está abierto o cerrado */
     const [openSelect, setOpenSelect] = useState(false)
     const selectRef = useRef<HTMLDivElement>(null)
 
+    // -- Estado de Carga y Errores --
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const supabase = createClient()
 
-    // Close select when clicking outside
+    // -- Efectos --
+    /** Cierra el select personalizado si se hace clic fuera de él */
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
@@ -42,6 +57,10 @@ export default function NuevaIniciativaModal({
         return () => document.removeEventListener("mousedown", handleClickOutside)
     }, [])
 
+    /**
+     * Maneja el envío del formulario.
+     * Valida la sesión del usuario y crea la iniciativa en Supabase.
+     */
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
@@ -142,8 +161,8 @@ export default function NuevaIniciativaModal({
                                                     onClick={() => { setEtapa(e); setOpenSelect(false) }}
                                                     style={{ animationDelay: `${index * 50}ms` }}
                                                     className={`w-full text-left px-3 py-3 rounded-xl flex items-center justify-between group transition-all duration-200 animate-in slide-in-from-left-2 fade-in fill-mode-both ${etapa === e
-                                                            ? "bg-primary-50 dark:bg-primary-900/30 shadow-inner"
-                                                            : "hover:bg-slate-50 dark:hover:bg-slate-800 hover:translate-x-1"
+                                                        ? "bg-primary-50 dark:bg-primary-900/30 shadow-inner"
+                                                        : "hover:bg-slate-50 dark:hover:bg-slate-800 hover:translate-x-1"
                                                         }`}
                                                 >
                                                     <div className="flex items-center gap-3">
