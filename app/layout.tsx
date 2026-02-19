@@ -6,27 +6,27 @@ import { ThemeProvider } from "@/components/theme-provider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Bitacora de Iniciativas",
-  description: "Sistema de gestion y seguimiento de iniciativas",
+    title: "Bitacora de Iniciativas",
+    description: "Sistema de gestion y seguimiento de iniciativas",
 }
 
 export default function RootLayout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode
+    children: React.ReactNode
 }>) {
-  return (
-    <html lang="es" suppressHydrationWarning>
-      <body className={`${inter.className} antialiased transition-colors duration-200`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
-      </body>
-    </html>
-  )
+    return (
+        <html lang="es" suppressHydrationWarning>
+            <body className={`${inter.className} antialiased transition-colors duration-200 min-h-screen flex flex-col`}>
+                <ThemeProvider
+                    attribute="class"
+                    defaultTheme="system"
+                    enableSystem
+                    disableTransitionOnChange
+                >
+                    {children}
+                </ThemeProvider>
+            </body>
+        </html>
+    )
 }
