@@ -1,12 +1,12 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Iniciativa, BitacoraRegistro, ETAPAS, InitiativeMember, Profile } from "@/lib/types/database.types"
+import { Iniciativa, BitacoraRegistro, ETAPAS, InitiativeMember, Profile, EtapaType } from "@/lib/types/database.types"
 import Link from "next/link"
 import {
     ArrowLeft, Edit3, Check, X, Plus, Trash2, Paperclip,
     Calendar, User, ListFilter, LayoutGrid, ChevronRight,
-    Loader2, Users, UserPlus, Send, FileText, MoreVertical, CheckCircle, Flag
+    Loader2, Users, UserPlus, Send, FileText, MoreVertical, CheckCircle, Flag, ChevronDown, Lightbulb, PenTool, Rocket, TrendingUp
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useProfile } from "@/hooks/use-profile"
@@ -16,6 +16,13 @@ const etapaColor: Record<string, string> = {
     "Diseño Integral": "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800",
     "Implementación de piloto": "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800",
     "Escalamiento y mejora continua": "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800",
+}
+
+const stageConfig: Record<EtapaType, { icon: React.ElementType, color: string, desc: string }> = {
+    "Identificación de oportunidad": { icon: Lightbulb, color: "text-blue-500", desc: "Definición del problema" },
+    "Diseño Integral": { icon: PenTool, color: "text-amber-500", desc: "Diseño de solución" },
+    "Implementación de piloto": { icon: Rocket, color: "text-purple-500", desc: "Pruebas piloto" },
+    "Escalamiento y mejora continua": { icon: TrendingUp, color: "text-emerald-500", desc: "Expansión" }
 }
 
 type EditRegistro = {
@@ -43,9 +50,13 @@ export default function DetalleBitacoraClient({
     const [iForm, setIForm] = useState({
         codigo: iniciativa.codigo,
         nombre: iniciativa.nombre,
-        etapa: iniciativa.etapa ?? "Identificación de oportunidad"
+        etapa: (iniciativa.etapa ?? "Identificación de oportunidad") as EtapaType
     })
     const [iSaving, setISaving] = useState(false)
+
+    // Open/Close state for custom select
+    const [openSelect, setOpenSelect] = useState(false)
+    const selectRef = useRef<HTMLDivElement>(null)
 
     const [registros, setRegistros] = useState<BitacoraRegistro[]>(initialRegistros)
     const [editingId, setEditingId] = useState<string | null>(null)
@@ -71,6 +82,17 @@ export default function DetalleBitacoraClient({
     useEffect(() => {
         if (iniciativa.id) loadMembers()
     }, [iniciativa.id])
+
+    // Close select when clicking outside
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
+                setOpenSelect(false)
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside)
+        return () => document.removeEventListener("mousedown", handleClickOutside)
+    }, [])
 
     async function loadMembers() {
         const { data } = await supabase
@@ -223,6 +245,10 @@ export default function DetalleBitacoraClient({
 
     const isFinalized = iniciativa.etapa === "Escalamiento y mejora continua"
 
+    // Fallback for stage if not in config
+    const currentStage = iForm.etapa || "Identificación de oportunidad"
+    const CurrentStageIcon = stageConfig[currentStage]?.icon || Lightbulb
+
     return (
         <div className="space-y-8 animate-in fade-in zoom-in-95 duration-700 pb-20">
 
@@ -238,15 +264,15 @@ export default function DetalleBitacoraClient({
             </nav>
 
             {/* 2. Header Card (Glassmorphism) */}
-            <header className="relative overflow-hidden rounded-3xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/50 shadow-xl shadow-slate-200/20 dark:shadow-black/20 animate-in slide-in-from-top-4 duration-700 transition-all">
+            <header className="relative overflow-visible rounded-3xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/50 shadow-xl shadow-slate-200/20 dark:shadow-black/20 animate-in slide-in-from-top-4 duration-700 transition-all z-20">
                 <div className="absolute top-0 right-0 w-96 h-96 bg-primary-500/10 rounded-full blur-[100px] -mr-20 -mt-20 pointer-events-none"></div>
 
                 <div className="relative z-10 p-8">
                     <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
-                        <div className="space-y-2">
+                        <div className="space-y-2 flex-grow">
                             {editingIniciativa ? (
                                 <input value={iForm.nombre} onChange={e => setIForm(f => ({ ...f, nombre: e.target.value }))}
-                                    className="text-3xl font-bold bg-transparent border-b-2 border-slate-300 focus:border-primary-500 outline-none w-full" />
+                                    className="text-3xl font-bold bg-transparent border-b-2 border-slate-300 dark:border-slate-700 focus:border-primary-500 text-slate-900 dark:text-white outline-none w-full mb-3" />
                             ) : (
                                 <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                                     {iniciativa.nombre}
@@ -259,10 +285,46 @@ export default function DetalleBitacoraClient({
                                         {iniciativa.etapa}
                                     </span>
                                 ) : (
-                                    <select value={iForm.etapa} onChange={e => setIForm(f => ({ ...f, etapa: e.target.value }))}
-                                        className="bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-sm">
-                                        {ETAPAS.map(e => <option key={e} value={e}>{e}</option>)}
-                                    </select>
+                                    /* CUSTOM PREMIUM DROPDOWN */
+                                    <div className="relative" ref={selectRef}>
+                                        <button
+                                            type="button"
+                                            onClick={() => setOpenSelect(!openSelect)}
+                                            className="flex items-center gap-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm hover:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all min-w-[240px] justify-between"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <CurrentStageIcon className={`w-3.5 h-3.5 ${stageConfig[currentStage]?.color}`} />
+                                                <span className="truncate max-w-[180px]">{currentStage}</span>
+                                            </div>
+                                            <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${openSelect ? 'rotate-180' : ''}`} />
+                                        </button>
+
+                                        {openSelect && (
+                                            <div className="absolute top-full left-0 mt-2 w-[280px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl shadow-black/20 z-[100] animate-in fade-in slide-in-from-top-2 duration-200 overflow-hidden">
+                                                <div className="max-h-60 overflow-y-auto p-1 custom-scrollbar">
+                                                    {ETAPAS.map((e) => {
+                                                        const Icon = stageConfig[e].icon
+                                                        return (
+                                                            <button
+                                                                key={e}
+                                                                type="button"
+                                                                onClick={() => { setIForm(f => ({ ...f, etapa: e })); setOpenSelect(false) }}
+                                                                className={`w-full text-left px-3 py-2.5 rounded-lg flex items-center gap-3 transition-colors ${iForm.etapa === e ? 'bg-primary-50 dark:bg-primary-900/30' : 'hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                                                            >
+                                                                <div className={`p-1.5 rounded-md ${iForm.etapa === e ? 'bg-white dark:bg-slate-950 shadow-sm' : 'bg-slate-100 dark:bg-slate-800'}`}>
+                                                                    <Icon className={`w-3.5 h-3.5 ${stageConfig[e].color}`} />
+                                                                </div>
+                                                                <div>
+                                                                    <p className={`text-sm font-semibold ${iForm.etapa === e ? 'text-primary-900 dark:text-primary-100' : 'text-slate-700 dark:text-slate-300'}`}>{e}</p>
+                                                                </div>
+                                                                {iForm.etapa === e && <Check className="w-4 h-4 text-primary-600 dark:text-primary-400 ml-auto" />}
+                                                            </button>
+                                                        )
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                 )}
                                 <span className="text-sm text-slate-500 flex items-center gap-1">
                                     <Calendar className="w-3.5 h-3.5" /> Iniciado el {fmt(iniciativa.created_at)}
@@ -272,29 +334,29 @@ export default function DetalleBitacoraClient({
 
                         {/* Edit Controls */}
                         {isAdmin && (
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 flex-shrink-0">
                                 {!editingIniciativa ? (
                                     <>
                                         {!isFinalized && (
                                             <button
                                                 onClick={finalizeIniciativa}
                                                 title="Finalizar Iniciativa"
-                                                className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-xl transition hover:scale-105 active:scale-95"
+                                                className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-xl transition hover:scale-105 active:scale-95 border border-transparent hover:border-emerald-200 dark:hover:border-emerald-800"
                                             >
                                                 <Flag className="w-5 h-5" />
                                             </button>
                                         )}
-                                        <button onClick={() => { setIForm({ codigo: iniciativa.codigo, nombre: iniciativa.nombre, etapa: iniciativa.etapa ?? "" }); setEditingIniciativa(true) }}
-                                            className="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100/50 dark:bg-slate-800/50 rounded-xl transition hover:scale-105 active:scale-95">
+                                        <button onClick={() => { setIForm({ codigo: iniciativa.codigo, nombre: iniciativa.nombre, etapa: (iniciativa.etapa ?? "Identificación de oportunidad") as EtapaType }); setEditingIniciativa(true) }}
+                                            className="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100/50 dark:bg-slate-800/50 rounded-xl transition hover:scale-105 active:scale-95 border border-transparent hover:border-slate-200 dark:hover:border-slate-700">
                                             <Edit3 className="w-5 h-5" />
                                         </button>
                                     </>
                                 ) : (
                                     <div className="flex gap-2 animate-in fade-in slide-in-from-right-4">
-                                        <button onClick={saveIniciativa} disabled={iSaving} className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-medium text-sm hover:opacity-90 transition shadow-lg">
+                                        <button onClick={saveIniciativa} disabled={iSaving} className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-medium text-sm hover:opacity-90 transition shadow-lg shrink-0">
                                             Guardar
                                         </button>
-                                        <button onClick={() => setEditingIniciativa(false)} className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl font-medium text-sm hover:bg-slate-200 transition">
+                                        <button onClick={() => setEditingIniciativa(false)} className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl font-medium text-sm hover:bg-slate-200 transition shrink-0">
                                             Cancelar
                                         </button>
                                     </div>
@@ -308,15 +370,15 @@ export default function DetalleBitacoraClient({
                         <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Equipo</span>
                         <div className="flex items-center -space-x-2 overflow-visible">
                             {/* Owner */}
-                            <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-bold ring-2 ring-white dark:ring-slate-950 z-10" title="Owner">
+                            <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-bold ring-2 ring-white dark:ring-slate-950 z-10 shadow-sm" title="Owner">
                                 <User className="w-4 h-4" />
                             </div>
                             {/* Members */}
                             {members.map(m => (
-                                <div key={m.id} className="relative group w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-700 dark:text-indigo-300 text-xs font-bold ring-2 ring-white dark:ring-slate-950 hover:z-20 hover:scale-110 transition cursor-help" title={m.profiles.email || ""}>
+                                <div key={m.id} className="relative group w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-700 dark:text-indigo-300 text-xs font-bold ring-2 ring-white dark:ring-slate-950 hover:z-20 hover:scale-110 transition cursor-help shadow-sm" title={m.profiles.email || ""}>
                                     {m.profiles.email?.charAt(0).toUpperCase()}
                                     {isAdmin && (
-                                        <button onClick={(e) => { e.stopPropagation(); removeMember(m.id) }} className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-sm">
+                                        <button onClick={(e) => { e.stopPropagation(); removeMember(m.id) }} className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-sm hover:scale-110">
                                             <X className="w-2 h-2" />
                                         </button>
                                     )}
@@ -332,7 +394,7 @@ export default function DetalleBitacoraClient({
                                                 value={newMemberEmail}
                                                 onChange={e => setNewMemberEmail(e.target.value)}
                                                 placeholder="email@usuario.com"
-                                                className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-full px-3 py-1 text-xs focus:ring-2 focus:ring-primary-500 outline-none w-40"
+                                                className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-full px-3 py-1 text-xs focus:ring-2 focus:ring-primary-500 outline-none w-40 placeholder-slate-400 text-slate-900 dark:text-white"
                                             />
                                             <button onClick={inviteMember} disabled={inviting} className="w-6 h-6 bg-primary-600 rounded-full text-white flex items-center justify-center hover:bg-primary-500 transition shadow-md">
                                                 {inviting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
@@ -360,7 +422,7 @@ export default function DetalleBitacoraClient({
 
 
             {/* 3. Main Content Grid */}
-            <div className="grid lg:grid-cols-12 gap-8 items-start">
+            <div className="grid lg:grid-cols-12 gap-8 items-start relative z-0">
 
                 {/* LEFT: Timeline (7 cols) */}
                 <div className="lg:col-span-7 space-y-8">
