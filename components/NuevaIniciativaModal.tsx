@@ -3,7 +3,14 @@
 import { useState, useRef, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Iniciativa, ETAPAS, EtapaType } from "@/lib/types/database.types"
-import { X, Loader2, BookPlus, ChevronDown, Check } from "lucide-react"
+import { X, Loader2, BookPlus, ChevronDown, Check, Lightbulb, PenTool, Rocket, TrendingUp } from "lucide-react"
+
+const stageConfig: Record<EtapaType, { icon: React.ElementType, color: string, desc: string }> = {
+    "Identificación de oportunidad": { icon: Lightbulb, color: "text-blue-500", desc: "Definición del problema y oportunidad" },
+    "Diseño Integral": { icon: PenTool, color: "text-amber-500", desc: "Planificación y diseño de solución" },
+    "Implementación de piloto": { icon: Rocket, color: "text-purple-500", desc: "Pruebas en entorno controlado" },
+    "Escalamiento y mejora continua": { icon: TrendingUp, color: "text-emerald-500", desc: "Expansión y optimización" }
+}
 
 export default function NuevaIniciativaModal({
     onClose,
@@ -54,14 +61,17 @@ export default function NuevaIniciativaModal({
         setLoading(false)
     }
 
+    const SelectedIcon = stageConfig[etapa].icon
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md transition-all animate-in fade-in duration-300">
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-md shadow-2xl shadow-black/50 overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md transition-all animate-in fade-in duration-500">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-md shadow-2xl shadow-black/50 overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-4 duration-500 flex flex-col">
 
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 z-10">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-xl border border-primary-100 dark:border-primary-500/20">
+                <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 z-10 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary-500/5 to-purple-500/5 pointer-events-none"></div>
+                    <div className="flex items-center gap-3 relative z-10">
+                        <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-xl border border-primary-100 dark:border-primary-500/20 shadow-sm">
                             <BookPlus className="w-5 h-5 text-primary-600 dark:text-primary-400" />
                         </div>
                         <div>
@@ -69,32 +79,32 @@ export default function NuevaIniciativaModal({
                             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Crear un nuevo proyecto</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="p-2 -mr-2 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition">
+                    <button onClick={onClose} className="p-2 -mr-2 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition z-10">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-6 bg-slate-50/50 dark:bg-slate-950/50 flex-1 overflow-visible">
+                <form onSubmit={handleSubmit} className="p-6 space-y-6 bg-slate-50/50 dark:bg-slate-950/50 flex-1 overflow-visible relative">
 
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Codigo del Proyecto</label>
+                    <div className="space-y-2 group">
+                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1 group-focus-within:text-primary-500 transition-colors">Codigo del Proyecto</label>
                         <input
                             value={codigo}
                             onChange={e => setCodigo(e.target.value)}
                             required
                             placeholder="Ej: PRJ-2024-001"
-                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 uppercase text-sm font-mono font-bold tracking-wide transition-all shadow-sm focus:shadow-md"
+                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 uppercase text-sm font-mono font-bold tracking-wide transition-all shadow-sm focus:shadow-md hover:border-primary-300 dark:hover:border-primary-700"
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Nombre de la Iniciativa</label>
+                    <div className="space-y-2 group">
+                        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1 group-focus-within:text-primary-500 transition-colors">Nombre de la Iniciativa</label>
                         <input
                             value={nombre}
                             onChange={e => setNombre(e.target.value)}
                             required
                             placeholder="Desarrollo de nueva plataforma..."
-                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm font-medium transition-all shadow-sm focus:shadow-md"
+                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm font-medium transition-all shadow-sm focus:shadow-md hover:border-primary-300 dark:hover:border-primary-700"
                         />
                     </div>
 
@@ -105,30 +115,47 @@ export default function NuevaIniciativaModal({
                         <button
                             type="button"
                             onClick={() => setOpenSelect(!openSelect)}
-                            className={`w-full bg-white dark:bg-slate-900 border ${openSelect ? 'border-primary-500 ring-2 ring-primary-500/20' : 'border-slate-200 dark:border-slate-800'} rounded-xl px-4 py-3 text-left flex items-center justify-between transition-all shadow-sm hover:border-primary-400`}
+                            className={`w-full bg-white dark:bg-slate-900 border ${openSelect ? 'border-primary-500 ring-2 ring-primary-500/20' : 'border-slate-200 dark:border-slate-800'} rounded-xl px-4 py-3 text-left flex items-center justify-between transition-all shadow-sm hover:border-primary-400 hover:shadow-md group`}
                         >
-                            <span className="text-sm font-medium text-slate-900 dark:text-white truncate">{etapa}</span>
+                            <div className="flex items-center gap-3">
+                                <div className={`p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 group-hover:bg-primary-50 dark:group-hover:bg-primary-900/20 transition-colors`}>
+                                    <SelectedIcon className={`w-4 h-4 ${stageConfig[etapa].color}`} />
+                                </div>
+                                <span className="text-sm font-bold text-slate-900 dark:text-white truncate">{etapa}</span>
+                            </div>
                             <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${openSelect ? 'rotate-180 text-primary-500' : ''}`} />
                         </button>
 
                         {/* Custom Options Dropdown */}
                         {openSelect && (
-                            <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                                <div className="max-h-60 overflow-y-auto p-1.5 custom-scrollbar">
-                                    {ETAPAS.map((e) => (
-                                        <button
-                                            key={e}
-                                            type="button"
-                                            onClick={() => { setEtapa(e); setOpenSelect(false) }}
-                                            className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center justify-between transition-all ${etapa === e
-                                                    ? "bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300"
-                                                    : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-                                                }`}
-                                        >
-                                            <span>{e}</span>
-                                            {etapa === e && <Check className="w-4 h-4" />}
-                                        </button>
-                                    ))}
+                            <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl shadow-black/20 overflow-hidden z-50 animate-in fade-in slide-in-from-top-4 duration-300 origin-top">
+                                <div className="p-2 space-y-1">
+                                    {ETAPAS.map((e, index) => {
+                                        const Icon = stageConfig[e].icon
+                                        return (
+                                            <button
+                                                key={e}
+                                                type="button"
+                                                onClick={() => { setEtapa(e); setOpenSelect(false) }}
+                                                style={{ animationDelay: `${index * 50}ms` }}
+                                                className={`w-full text-left px-3 py-3 rounded-xl flex items-center justify-between group transition-all duration-200 animate-in slide-in-from-left-2 fade-in fill-mode-both ${etapa === e
+                                                        ? "bg-primary-50 dark:bg-primary-900/30 shadow-inner"
+                                                        : "hover:bg-slate-50 dark:hover:bg-slate-800 hover:translate-x-1"
+                                                    }`}
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`p-2 rounded-lg ${etapa === e ? 'bg-white dark:bg-slate-900 shadow-sm' : 'bg-slate-100 dark:bg-slate-800 group-hover:bg-white dark:group-hover:bg-slate-700'} transition-colors`}>
+                                                        <Icon className={`w-4 h-4 ${stageConfig[e].color}`} />
+                                                    </div>
+                                                    <div>
+                                                        <p className={`text-sm font-bold ${etapa === e ? 'text-primary-900 dark:text-primary-100' : 'text-slate-700 dark:text-slate-300'}`}>{e}</p>
+                                                        <p className="text-[10px] text-slate-400 font-medium">{stageConfig[e].desc}</p>
+                                                    </div>
+                                                </div>
+                                                {etapa === e && <Check className="w-5 h-5 text-primary-600 dark:text-primary-400 animate-in zoom-in spin-in-45 duration-300" />}
+                                            </button>
+                                        )
+                                    })}
                                 </div>
                             </div>
                         )}
@@ -148,7 +175,7 @@ export default function NuevaIniciativaModal({
                         <button
                             type="submit"
                             disabled={loading}
-                            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-200 disabled:opacity-50 text-white dark:text-slate-900 font-bold text-sm transition-all shadow-lg shadow-slate-900/20 active:scale-[0.98]"
+                            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-200 disabled:opacity-50 text-white dark:text-slate-900 font-bold text-sm transition-all shadow-lg shadow-slate-900/20 active:scale-[0.98] hover:shadow-xl hover:-translate-y-0.5 duration-200"
                         >
                             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                             Crear Iniciativa
