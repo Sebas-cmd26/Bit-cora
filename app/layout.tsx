@@ -10,6 +10,10 @@ export const metadata: Metadata = {
     description: "Sistema de gestion y seguimiento de iniciativas",
 }
 
+/**
+ * Layout principal de la aplicación.
+ * Define la estructura base HTML, fuentes, y el proveedor de temas (Dark/Light).
+ */
 export default function RootLayout({
     children,
 }: Readonly<{

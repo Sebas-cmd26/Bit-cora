@@ -5,6 +5,10 @@ import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { BookOpen, Mail, Lock, Loader2, AlertCircle, ArrowRight } from "lucide-react"
 
+/**
+ * Página de inicio de sesión y registro.
+ * Permite a los usuarios autenticarse o crear una nueva cuenta.
+ */
 export default function LoginPage() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
@@ -15,6 +19,9 @@ export default function LoginPage() {
     const router = useRouter()
     const supabase = createClient()
 
+    /**
+     * Maneja el envío del formulario de login/registro.
+     */
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
