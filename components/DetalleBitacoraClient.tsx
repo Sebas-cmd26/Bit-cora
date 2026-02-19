@@ -263,7 +263,7 @@ export default function DetalleBitacoraClient({
     const CurrentStageIcon = stageConfig[currentStage]?.icon || Lightbulb
 
     return (
-        <div className="space-y-8 animate-in fade-in zoom-in-95 duration-700 pb-8 min-h-[calc(100vh-140px)] relative">
+        <div className="space-y-8 animate-in fade-in zoom-in-95 duration-700 pb-4 flex-1 flex flex-col relative w-full">
 
             {/* Custom Modal Overlay */}
             {showFinalizeConfirm && (
