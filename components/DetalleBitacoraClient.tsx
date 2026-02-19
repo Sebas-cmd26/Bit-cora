@@ -6,7 +6,7 @@ import Link from "next/link"
 import {
     ArrowLeft, Edit3, Check, X, Plus, Trash2, Paperclip,
     Calendar, User, ListFilter, LayoutGrid, ChevronRight,
-    Loader2, Users, UserPlus, Send, FileText, MoreVertical
+    Loader2, Users, UserPlus, Send, FileText, MoreVertical, CheckCircle, Flag
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useProfile } from "@/hooks/use-profile"
@@ -135,6 +135,25 @@ export default function DetalleBitacoraClient({
         setEditingIniciativa(false)
     }
 
+    const finalizeIniciativa = async () => {
+        if (!isAdmin) return
+        if (!confirm("¿Marcar esta iniciativa como finalizada/escalada?")) return
+
+        setISaving(true)
+        const { data, error } = await supabase
+            .from("iniciativas")
+            .update({ etapa: "Escalamiento y mejora continua" })
+            .eq("id", iniciativa.id)
+            .select()
+            .single()
+
+        if (!error && data) {
+            setIniciativa(data)
+            setIForm(prev => ({ ...prev, etapa: "Escalamiento y mejora continua" }))
+        }
+        setISaving(false)
+    }
+
     const handleUpload = async (file: File, target: "new" | "edit") => {
         setUploading(true)
         const ext = file.name.split(".").pop()
@@ -202,6 +221,8 @@ export default function DetalleBitacoraClient({
 
     const fmt = (d: string | null | undefined) => d ? new Date(d).toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" }) : "-"
 
+    const isFinalized = iniciativa.etapa === "Escalamiento y mejora continua"
+
     return (
         <div className="space-y-8 animate-in fade-in zoom-in-95 duration-700 pb-20">
 
@@ -229,6 +250,7 @@ export default function DetalleBitacoraClient({
                             ) : (
                                 <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                                     {iniciativa.nombre}
+                                    {isFinalized && <CheckCircle className="inline-block w-6 h-6 ml-3 text-emerald-500" />}
                                 </h1>
                             )}
                             <div className="flex flex-wrap items-center gap-3">
@@ -252,10 +274,21 @@ export default function DetalleBitacoraClient({
                         {isAdmin && (
                             <div className="flex gap-2">
                                 {!editingIniciativa ? (
-                                    <button onClick={() => { setIForm({ codigo: iniciativa.codigo, nombre: iniciativa.nombre, etapa: iniciativa.etapa ?? "" }); setEditingIniciativa(true) }}
-                                        className="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100/50 dark:bg-slate-800/50 rounded-xl transition hover:scale-105 active:scale-95">
-                                        <Edit3 className="w-5 h-5" />
-                                    </button>
+                                    <>
+                                        {!isFinalized && (
+                                            <button
+                                                onClick={finalizeIniciativa}
+                                                title="Finalizar Iniciativa"
+                                                className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-xl transition hover:scale-105 active:scale-95"
+                                            >
+                                                <Flag className="w-5 h-5" />
+                                            </button>
+                                        )}
+                                        <button onClick={() => { setIForm({ codigo: iniciativa.codigo, nombre: iniciativa.nombre, etapa: iniciativa.etapa ?? "" }); setEditingIniciativa(true) }}
+                                            className="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100/50 dark:bg-slate-800/50 rounded-xl transition hover:scale-105 active:scale-95">
+                                            <Edit3 className="w-5 h-5" />
+                                        </button>
+                                    </>
                                 ) : (
                                     <div className="flex gap-2 animate-in fade-in slide-in-from-right-4">
                                         <button onClick={saveIniciativa} disabled={iSaving} className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-medium text-sm hover:opacity-90 transition shadow-lg">
