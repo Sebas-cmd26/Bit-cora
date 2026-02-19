@@ -71,7 +71,7 @@ export default function InitiativasClient({ iniciativas }: { iniciativas: Inicia
     }
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
+        <div className="space-y-6 animate-in fade-in zoom-in-95 duration-700">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
@@ -81,7 +81,7 @@ export default function InitiativasClient({ iniciativas }: { iniciativas: Inicia
                 {isAdmin && (
                     <button
                         onClick={() => setShowModal(true)}
-                        className="flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-medium px-5 py-2.5 rounded-xl transition shadow-md shadow-primary-500/20 active:scale-95"
+                        className="flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-medium px-5 py-2.5 rounded-xl transition shadow-lg shadow-primary-500/20 active:scale-95 ease-out duration-300"
                     >
                         <Plus className="w-4 h-4" /> Nueva Iniciativa
                     </button>
@@ -94,8 +94,8 @@ export default function InitiativasClient({ iniciativas }: { iniciativas: Inicia
                     { label: "Total Iniciativas", value: stats.total, icon: TrendingUp, color: "text-primary-600 dark:text-primary-400", bg: "bg-primary-50 dark:bg-primary-900/20" },
                     { label: "En Progreso", value: stats.activas, icon: Tag, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-900/20" },
                     { label: "Escaladas/Finalizadas", value: stats.finalizadas, icon: Calendar, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-900/20" },
-                ].map(s => (
-                    <div key={s.label} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
+                ].map((s, i) => (
+                    <div key={s.label} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex items-center justify-between shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300" style={{ animationDelay: `${i * 100}ms` }}>
                         <div>
                             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{s.label}</p>
                             <p className="text-3xl font-bold text-slate-900 dark:text-white mt-1">{s.value}</p>
@@ -126,8 +126,8 @@ export default function InitiativasClient({ iniciativas }: { iniciativas: Inicia
                             key={e}
                             onClick={() => setFilter(e)}
                             className={`px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition border ${filter === e
-                                    ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white"
-                                    : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                                ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white shadow-md transform scale-105"
+                                : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
                                 }`}
                         >
                             {e}
@@ -137,7 +137,7 @@ export default function InitiativasClient({ iniciativas }: { iniciativas: Inicia
             </div>
 
             {/* Table */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm animate-in slide-in-from-bottom-8 duration-700 delay-200 fill-mode-both">
                 {filtered.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-slate-500 dark:text-slate-400">
                         <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
@@ -162,7 +162,7 @@ export default function InitiativasClient({ iniciativas }: { iniciativas: Inicia
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                 {filtered.map(ini => (
-                                    <tr key={ini.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition group">
+                                    <tr key={ini.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition duration-150 group">
                                         <td className="px-6 py-4">
                                             <span className="font-mono text-primary-600 dark:text-primary-400 text-xs font-bold bg-primary-50 dark:bg-primary-900/30 px-2 py-1 rounded-md border border-primary-100 dark:border-primary-800/50">
                                                 {ini.codigo}
@@ -184,7 +184,7 @@ export default function InitiativasClient({ iniciativas }: { iniciativas: Inicia
                                                 href={`/dashboard/iniciativas/${ini.id}`}
                                                 className="inline-flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-primary-600 dark:text-slate-400 dark:hover:text-primary-400 transition"
                                             >
-                                                Ver Bitácora <ChevronRight className="w-4 h-4" />
+                                                Ver Bitácora <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
                                             </Link>
                                             {isAdmin && (
                                                 <button
@@ -213,8 +213,8 @@ export default function InitiativasClient({ iniciativas }: { iniciativas: Inicia
 
             {/* Custom Delete Confirmation Modal */}
             {deleteModalOpen && initToDelete && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm transition-all animate-in fade-in duration-200">
-                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm transition-all animate-in fade-in duration-300">
+                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
                         <div className="p-6 text-center">
                             <div className="w-12 h-12 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />

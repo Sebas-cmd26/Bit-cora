@@ -203,13 +203,13 @@ export default function DetalleBitacoraClient({
     const fmt = (d: string | null | undefined) => d ? new Date(d).toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" }) : "-"
 
     return (
-        <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500 pb-20">
+        <div className="space-y-8 animate-in fade-in zoom-in-95 duration-700 pb-20">
 
             {/* 1. Navbar / Breadcrumbs */}
             <nav className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400">
-                    <Link href="/dashboard" className="hover:text-slate-900 dark:hover:text-white transition flex items-center gap-1">
-                        <ArrowLeft className="w-4 h-4" /> Volver
+                    <Link href="/dashboard" className="hover:text-slate-900 dark:hover:text-white transition flex items-center gap-1 group">
+                        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Volver
                     </Link>
                     <span className="text-slate-300 dark:text-slate-700">/</span>
                     <span className="text-slate-900 dark:text-white font-semibold tracking-tight">{iniciativa.codigo}</span>
@@ -217,7 +217,7 @@ export default function DetalleBitacoraClient({
             </nav>
 
             {/* 2. Header Card (Glassmorphism) */}
-            <header className="relative overflow-hidden rounded-3xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/50 shadow-xl shadow-slate-200/20 dark:shadow-black/20">
+            <header className="relative overflow-hidden rounded-3xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/50 shadow-xl shadow-slate-200/20 dark:shadow-black/20 animate-in slide-in-from-top-4 duration-700 transition-all">
                 <div className="absolute top-0 right-0 w-96 h-96 bg-primary-500/10 rounded-full blur-[100px] -mr-20 -mt-20 pointer-events-none"></div>
 
                 <div className="relative z-10 p-8">
@@ -351,8 +351,8 @@ export default function DetalleBitacoraClient({
                             </div>
                         )}
 
-                        {registros.map((r) => (
-                            <div key={r.id} className="relative pl-12 group animate-in slide-in-from-bottom-4 fade-in duration-500">
+                        {registros.map((r, index) => (
+                            <div key={r.id} className="relative pl-12 group animate-in slide-in-from-bottom-4 fade-in duration-700 fill-mode-both" style={{ animationDelay: `${index * 100}ms` }}>
                                 {/* Timeline Dot */}
                                 <div className="absolute left-[11px] top-5 w-2.5 h-2.5 rounded-full bg-white dark:bg-slate-900 border-2 border-primary-500 ring-4 ring-slate-50 dark:ring-slate-950 z-10 group-hover:scale-125 transition-transform duration-300"></div>
 
@@ -405,7 +405,7 @@ export default function DetalleBitacoraClient({
                 </div>
 
                 {/* RIGHT: Sticky Form (5 cols) */}
-                <div className="lg:col-span-5 relative">
+                <div className="lg:col-span-5 relative animate-in slide-in-from-right-8 fade-in duration-1000">
                     <div className="sticky top-8 space-y-6">
 
                         {/* Large Input Card */}
@@ -426,7 +426,7 @@ export default function DetalleBitacoraClient({
                                             type="date"
                                             value={newForm.fecha}
                                             onChange={e => setNewForm(f => ({ ...f, fecha: e.target.value }))}
-                                            className="w-full bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all outline-none"
+                                            className="w-full bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white font-medium focus:ring-2 focus:ring-primary-500 focus:bg-white dark:focus:bg-slate-950 transition-all outline-none"
                                         />
                                     </div>
 
@@ -437,7 +437,7 @@ export default function DetalleBitacoraClient({
                                             onChange={e => setNewForm(f => ({ ...f, descripcion: e.target.value }))}
                                             rows={6}
                                             placeholder="¿Qué avances hubo hoy?"
-                                            className="w-full bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-base text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all outline-none resize-none placeholder-slate-400"
+                                            className="w-full bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-base text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:bg-white dark:focus:bg-slate-950 transition-all outline-none resize-none placeholder-slate-400"
                                         />
                                     </div>
 
